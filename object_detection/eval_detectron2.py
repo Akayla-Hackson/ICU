@@ -3,11 +3,10 @@ import argparse
 from detectron2.utils.logger import setup_logger
 setup_logger()
 
-# import some common libraries
 import numpy as np
 import os, json, cv2, random
 import matplotlib.pyplot as plt
-# import some common detectron2 utilities
+
 from detectron2 import model_zoo
 from detectron2.engine import DefaultPredictor
 from detectron2.config import get_cfg
@@ -90,13 +89,12 @@ def main(args):
 
     cfg = get_cfg()
     cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml"))
-    cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5  # Set threshold for this model
+    cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5  
     cfg.MODEL.DEVICE = 'cuda'
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1
      # Load the trained weights
     if args.weights:
         weight_base_path = os.path.join(args.weights, 'last_checkpoint')
-        # checkpoint_file = 'last_checkpoint.txt'  # Adjust the path if necessary
         if os.path.exists(weight_base_path):
             with open(weight_base_path, 'r') as file:
                 checkpoint_path = file.read().strip() 
@@ -110,7 +108,7 @@ def main(args):
         
 
 
-    all_detections = []  # Store all detections for the entire dataset
+    all_detections = [] 
     n_global_ground_truths = 0  
     total_tp_global = 0
     total_fp_global = 0
@@ -124,7 +122,6 @@ def main(args):
         output_path = os.path.join(output_base_path, video_name)
         ground_truths = load_ground_truth(gt_path) if os.path.exists(gt_path) else {}
 
-        # Ensure video-specific output path exists
         if not os.path.exists(output_path):
             os.makedirs(output_path, exist_ok=True)
 
@@ -138,7 +135,6 @@ def main(args):
                 frame_number = int(frame_file.split('.')[0])
                 output_file = os.path.join(output_path, frame_file)
 
-                # Read, process, and save the frame
                 image = cv2.imread(frame_path)
                 outputs = model(image)
 
@@ -182,7 +178,7 @@ def main(args):
                 iou_scores.sort(reverse=True, key=lambda x: x[0])
                 frame_detections = [(pred_scores[i].item(), False) for i in range(len(pred_boxes))]
 
-                # Select matches ensuring unique association
+                # Select matches ensuring uniqueness
                 matched_predictions = set()
                 matched_ground_truths = set()
                 for score, pred_index, true_index in iou_scores:
@@ -196,7 +192,7 @@ def main(args):
 
                 video_detections.extend(frame_detections)
 
-        # Sort and calculate precision and recall for the dataset
+        # Sort and calculate metrics
         video_detections.sort(key=lambda x: x[0], reverse=True)
         score, matches = zip(*video_detections)
         matches = np.array(matches) 
@@ -219,10 +215,9 @@ def main(args):
         tp_cumulative = 0
         fp_cumulative = 0
 
-        # Calculate precision and recall at each threshold
         for match in matches:
             tp_cumulative += match
-            fp_cumulative += (1 - match)  # Increment FP if match is False
+            fp_cumulative += (1 - match)  
             pr = tp_cumulative / (tp_cumulative + fp_cumulative)
             re = tp_cumulative / n_ground_truths
             precisions.append(pr)
@@ -248,7 +243,7 @@ def main(args):
         total_fn_global += false_negatives
 
 
-    # Sort and calculate precision and recall for the entire dataset
+    # Sort and calculate metrics
     all_detections.sort(key=lambda x: x[0], reverse=True)
     score, matches = zip(*all_detections)
     matches = np.array(matches) 
@@ -271,7 +266,6 @@ def main(args):
     tp_cumulative = 0
     fp_cumulative = 0
 
-    # Calculate precision and recall at each threshold
     for match in matches:
         tp_cumulative += match
         fp_cumulative += (1 - match)  # Increment FP if match is False
@@ -289,8 +283,7 @@ def main(args):
     dataset_ap = compute_ap(recalls, precisions)
 
     # Calculate AP for the entire dataset
-    # dataset_ap = compute_ap(final_recall, final_precision)
-    print(f'Dataset Precision, AP, Recall, Accuracy: {final_precision:.2f}, {dataset_ap:.2f}, {final_recall:.2f}, {global_accuracy:.2f}, {f1_score_global:.2f}')
+    print(f'Dataset Precision, AP, Recall, Accuracy, F1: {final_precision:.2f}, {dataset_ap:.2f}, {final_recall:.2f}, {global_accuracy:.2f}, {f1_score_global:.2f}')
 
     global_save_file = os.path.join(output_base_path, 'global_precision_recall_curve.png')
     plot_precision_recall_curve(recalls, precisions, dataset_ap, global_save_file, title="Precision-Recall Curve for Entire Dataset")
