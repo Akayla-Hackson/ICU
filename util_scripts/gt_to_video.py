@@ -9,7 +9,7 @@ def create_video_from_frames(video_folder, base_output_folder, output_video_name
     # Get a sorted list of frame filenames
     frame_filenames = sorted([f for f in os.listdir(video_folder) if f.endswith(('.png', '.jpg', '.jpeg'))])
     
-    # Assume all frames are of the same size, get size from the first frame
+    # All frames are of the same size, get size from the first frame
     first_frame_path = os.path.join(video_folder, frame_filenames[0])
     first_frame = cv2.imread(first_frame_path)
     if first_frame is None:
@@ -35,7 +35,7 @@ def create_video_from_frames(video_folder, base_output_folder, output_video_name
     out.release()
     print(f"Video has been processed and saved as {output_video_path}.")
 
-# EUsage
+
 video_folder = './object_detection/outputs/updated_data_splits/yolov8_only_ppl_class/v_00HRwkvvjtQ_c001'  
 base_output_folder = './demos/'
 output_video_name = 'yolov8_only_ppl_v_00HRwkvvjtQ_c001.mp4'
