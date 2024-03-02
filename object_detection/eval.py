@@ -125,7 +125,7 @@ def main(args):
     if not os.path.exists(output_base_path):
         os.makedirs(output_base_path, exist_ok=True)
     
-    all_detections = []  # Store all detections for the entire dataset
+    all_detections = [] 
     n_global_ground_truths = 0  
     total_tp_global = 0
     total_fp_global = 0
@@ -177,18 +177,10 @@ def main(args):
                     # Save the image with bounding boxes
                     drawn_image.save(os.path.join(output_path, frame_file))
 
-                    # Get ground truth boxes for the current frame
                     true_boxes = [(x, y, x + w, y + h) for _, x, y, w, h in ground_truths[frame_number]]
 
-                    # Count the total number of ground truths
                     n_ground_truths += len(true_boxes)
 
-
-                    # For each prediction, determine if it's a true positive and store the confidence
-                    # for pred_box, pred_score in zip(pred_boxes, pred_scores):
-                    #     matched = any(calculate_iou(pred_box, true_box) > 0.5 for true_box in true_boxes)
-                    #     video_detections.append((pred_score, matched))
-                    # Calc all IoUs and store them with indices
                     iou_scores = []
                     for i, (pred_box, pred_score) in enumerate(zip(pred_boxes, pred_scores)):
                         pred_box_int = np.array(pred_box).astype(int)
@@ -215,7 +207,7 @@ def main(args):
                     video_detections.extend(frame_detections)
             
 
-           # Sort and calculate precision and recall for the dataset
+           # Sort and calculate metrics
             video_detections.sort(key=lambda x: x[0], reverse=True)
             score, matches = zip(*video_detections)
             matches = np.array(matches) 
@@ -241,7 +233,7 @@ def main(args):
             # Calculate precision and recall at each threshold
             for match in matches:
                 tp_cumulative += match
-                fp_cumulative += (1 - match)  # Increment FP if match is False
+                fp_cumulative += (1 - match) 
                 pr = tp_cumulative / (tp_cumulative + fp_cumulative)
                 re = tp_cumulative / n_ground_truths
                 precisions.append(pr)
@@ -267,7 +259,7 @@ def main(args):
             total_fn_global += false_negatives
 
 
-    # Sort and calculate precision and recall for the entire dataset
+    # Sort and calculate metrics for the entire dataset
     all_detections.sort(key=lambda x: x[0], reverse=True)
     score, matches = zip(*all_detections)
     matches = np.array(matches) 
@@ -290,7 +282,6 @@ def main(args):
     tp_cumulative = 0
     fp_cumulative = 0
 
-    # Calculate precision and recall at each threshold
     for match in matches:
         tp_cumulative += match
         fp_cumulative += (1 - match)  # Increment FP if match is False
@@ -308,8 +299,7 @@ def main(args):
     dataset_ap = compute_ap(recalls, precisions)
 
     # Calculate AP for the entire dataset
-    # dataset_ap = compute_ap(final_recall, final_precision)
-    print(f'Dataset Precision, AP, Recall, Accuracy: {final_precision:.2f}, {dataset_ap:.2f}, {final_recall:.2f}, {global_accuracy:.2f}, {f1_score_global:.2f}')
+    print(f'Dataset Precision, AP, Recall, Accuracy, F1: {final_precision:.2f}, {dataset_ap:.2f}, {final_recall:.2f}, {global_accuracy:.2f}, {f1_score_global:.2f}')
 
     global_save_file = os.path.join(output_base_path, 'global_precision_recall_curve.png')
     plot_precision_recall_curve(recalls, precisions, dataset_ap, global_save_file, title="Precision-Recall Curve for Entire Dataset")
