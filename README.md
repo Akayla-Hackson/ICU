@@ -10,7 +10,7 @@
    ##### Then run the following to use the fine-tuned weights
    ``` python ./object_detection/eval_yolov8.py --weights <insert weight path> ```
    ### Detectron2
-    ``` run command: python ./object_detection/eval_detectron2.py ```
+   ``` run command: python ./object_detection/eval_detectron2.py ```
    #### Note: You may finetuine by running:
    ``` python ./object_detection/finetune_detectron2.py ```
    #### Then run the following to use the fine-tuned weights: 
