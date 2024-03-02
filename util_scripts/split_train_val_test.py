@@ -27,7 +27,7 @@ def split_directories(source_directory, train_directory, val_directory, test_dir
     for directory in test_directories:
         shutil.copytree(os.path.join(source_directory, directory), os.path.join(test_directory, directory))
 
-# Example Usage
+
 source_directory = './data/bball_data/'
 train_directory = './data/bball_train/'
 val_directory = './data/bball_val/'
