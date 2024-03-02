@@ -19,7 +19,6 @@ def main():
     cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml"))
     cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml")
 
-    # Update the dataset names
     cfg.DATASETS.TRAIN = ("bball_train",)
     cfg.DATASETS.TEST = ("bball_val",)
     cfg.OUTPUT_DIR = './runs/detect/'
@@ -28,7 +27,7 @@ def main():
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5 ]
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1  
 
-    # Now you can initialize the trainer and start training
+    # Initialize the trainer and start training
     trainer = DefaultTrainer(cfg)
     trainer.resume_or_load(resume=False)
     trainer.train()
