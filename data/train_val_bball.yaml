@@ -1,0 +1,7 @@
+path: ./data/yolo_format/
+train: bball_train/images
+
+val: bball_val/images
+
+nc: 1  # number of classes
+names: ['person']  # class names

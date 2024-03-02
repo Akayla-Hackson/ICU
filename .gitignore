@@ -1,0 +1,11 @@
+*.txt
+*.bin
+*.json
+tensorboard
+*.pyc
+*.jpg
+*.ini
+*.png
+*.csv
+*.mp4
+*.pth
