@@ -35,7 +35,6 @@ def main(args):
     total_fp_global = 0
     total_fn_global = 0
 
-    # Evaluation
     # Process each video directory
     for video_dir in sorted(os.listdir(test_videos_directory)):
         video_path = os.path.join(test_videos_directory, video_dir)
@@ -62,7 +61,6 @@ def main(args):
                     frame_path = os.path.join(frames_directory, frame_file)
                     output_file = os.path.join(output_path, frame_file)
                     if os.path.isfile(frame_path) and frame_number in ground_truths:
-                        # Load the image
                         image = Image.open(frame_path).convert("RGB")
 
                         # Detect objects with YOLO
@@ -97,7 +95,7 @@ def main(args):
                         iou_scores.sort(reverse=True, key=lambda x: x[0])
                         frame_detections = [(scores[i].item(), False) for i in range(len(pred_boxes))]
 
-                        # Select matches ensuring unique association
+                        # Select matches ensuring uniqueness
                         matched_predictions = set()
                         matched_ground_truths = set()
                         for score, pred_index, true_index in iou_scores:
@@ -111,7 +109,7 @@ def main(args):
 
                         video_detections.extend(frame_detections)
 
-            # Sort and calculate precision and recall for the dataset
+            # Sort and calculate metrics
             video_detections.sort(key=lambda x: x[0], reverse=True)
             score, matches = zip(*video_detections)
             matches = np.array(matches) 
@@ -134,7 +132,6 @@ def main(args):
             tp_cumulative = 0
             fp_cumulative = 0
 
-            # Calculate precision and recall at each threshold
             for match in matches:
                 tp_cumulative += match
                 fp_cumulative += (1 - match)  # Increment FP if match is False
@@ -163,7 +160,7 @@ def main(args):
             total_fn_global += false_negatives
 
     
-    # Sort and calculate precision and recall for the entire dataset
+    # Sort and calculate metrics for the entire dataset
     all_detections.sort(key=lambda x: x[0], reverse=True)
     score, matches = zip(*all_detections)
     matches = np.array(matches) 
@@ -186,7 +183,6 @@ def main(args):
     tp_cumulative = 0
     fp_cumulative = 0
 
-    # Calculate precision and recall at each threshold
     for match in matches:
         tp_cumulative += match
         fp_cumulative += (1 - match)  # Increment FP if match is False
@@ -204,13 +200,11 @@ def main(args):
     dataset_ap = compute_ap(recalls, precisions)
 
     # Calculate AP for the entire dataset
-    # dataset_ap = compute_ap(final_recall, final_precision)
-    print(f'Dataset Precision, AP, Recall, Accuracy: {final_precision:.2f}, {dataset_ap:.2f}, {final_recall:.2f}, {global_accuracy:.2f}, {f1_score_global:.2f}')
+    print(f'Dataset Precision, AP, Recall, Accuracy, F1: {final_precision:.2f}, {dataset_ap:.2f}, {final_recall:.2f}, {global_accuracy:.2f}, {f1_score_global:.2f}')
 
     global_save_file = os.path.join(output_base_path, 'global_precision_recall_curve.png')
     plot_precision_recall_curve(recalls, precisions, dataset_ap, global_save_file, title="Precision-Recall Curve for Entire Dataset")
 
-# Call the main function
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--weights', type=str, default=None, help='Path to the results file to load')
