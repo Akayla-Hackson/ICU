@@ -53,7 +53,7 @@ def calculate_iou(boxA, boxB):
 
 def compute_ap(recall, precision):
     """Compute the average precision, given the recall and precision curves."""
-    # First append sentinel values at the end
+    # Append sentinel values at the end
     mrec = np.concatenate(([0.], recall, [1.]))
     mpre = np.concatenate(([0.], precision, [0.]))
 
@@ -61,7 +61,7 @@ def compute_ap(recall, precision):
     for i in range(mpre.size - 1, 0, -1):
         mpre[i - 1] = np.maximum(mpre[i - 1], mpre[i])
 
-    # to calculate area under PR curve, look for points
+    # to calc area under PR curve, look for points
     # where X axis (recall) changes value
     i = np.where(mrec[1:] != mrec[:-1])[0]
 
